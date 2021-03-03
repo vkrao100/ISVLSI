@@ -1,0 +1,26 @@
+\section{Polynomial Model}
+
+Let $R = \mathbb{Q}[x_1,\dots,x_n]$, and let $f$ be a polynomial in $R$ that acts as specification for a given circuit. Consider circuit $C$ with two $k$-bit vectors as inputs. Let input vectors be $a_0,\dots,a_{k-1}$ and $b_0,\dots,b_{k-1}$. The output of the circuit $C$ is a $2k$-bit vector $s_0,\dots,s_{2k-1}$.
+\vspace{-7mm}
+\small{
+\begin{center}
+    \begin{equation}
+        f = \sum_{i=0}^{2k-1} 2^is_i-\sum_{i=0}^{k-1} 2^ia_i\cdot \sum_{i=0}^{k-1} 2^ib_i
+    \end{equation}
+\end{center}
+}
+where $a_i,b_i,s_i \in \{0,1\} \subset \Q$.
+
+\textbf{Implementation:} Given a gate-level circuit netlist, we map the gate-level Boolean
+operators (AND, OR, NOT, XOR) to polynomials over $\Q$ using the following one-to-one mapping:
+
+\begin{equation}
+\begin{split}
+u = \neg v \implies 0 = u - 1 + v & \\
+u = v \land w \implies 0 = u - vw & \\
+u = v \lor w \implies 0 = u - v - w + vw & \\
+u = v \oplus w \implies 0 = u - v - w + 2vw &
+\end{split}
+\label{eq: gates}
+\end{equation}
+

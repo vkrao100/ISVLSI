@@ -1,0 +1,7 @@
+\vspace{-0.1in} 
+\section{Conclusion}
+\label{sec:conclude}
+
+We model the rectification problem using concepts from
+algebraic geometry and use symbolic computer algebra algorithms to compute the rectification function $U(X_{PI})$. Using the model presented in \cite{Armin2017ColumnWiseVO}, we obtain a system of polynomials $F = \{f_1,\dots,f_s\}$ to describe the gates of the circuit over the field of rational numbers $\Q$. A net $x_i$ in a buggy circuit is found to admit single-fix rectification, confirming the existence of a polynomial $x_i = U(X_{PI})$ in primary input variables that can rectify the circuit at net $x_i$. The problem of computing $U(X_{PI})$ is modeled as an extended ideal membership testing problem, which is
+solved using the \Grobner Basis algorithm. This paper investigates the nature of the rectification function, by stating the conditions under which the rectification polynomial we compute is a Boolean polynomial, i.e., it maps from $\{0,1\}^{|X_{PI}|}\rightarrow \{0,1\}$. We also introduce the concept of don't cares of the rectification function in the computer algebra setup. This paper describes the procedure to synthesize a logic circuit from the rectification polynomial we compute. By conducting experiments on integer array multipliers, we demonstrate the efficiency of our approach. 

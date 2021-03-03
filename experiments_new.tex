@@ -1,0 +1,95 @@
+\section{Experiments}
+\label{sec:exp}
+
+We have performed experiments on integer array multiplier circuits where the implementation is
+different from the specification due to the presence of a bug.
+We generated AIG files of array multipliers up to 64 bits by using the \textit{gen -m} command from ABC \cite{ABC}. The tool from the authors in \cite{Armin2017ColumnWiseVO} was used to input the AIG files and obtain *.SING files for the multiplier. We introduced bugs which could be corrected by a single-fix rectification. The complete single-fix rectification procedure is implemented using the SINGULAR symbolic
+algebra computation system [ver. 4-1-0][\cite{DGPS_410}]. The experiments
+were conducted on a desktop computer with a 3.5GHz Intel
+CoreTM i7-4770K Quad-core CPU, 16 GB RAM, running 64-
+bit Linux OS. 
+\vspace{0.1mm}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| l | l | l | l | l |}
+    \hline
+    $k$ & $t_1$ & $t_2$ & $t_3$ & $t_4$ \\ \hline
+    2 & 0.002 & 0.003 & 0.007 & 0.005 \\ \hline
+    4 & 0.005 & 5.820 & 0.024 & 5.824 \\ \hline
+    8 & 0.027 & 9.103 & 0.206 & 9.111 \\ \hline
+    12 & 0.120 & 23.137 & 0.641 & 23.158 \\ \hline
+    16 & 0.400 & 42.915 & 1.782 & 42.981 \\ \hline
+    18 & 0.647 & 48.964 & 2.479 & 49.060  \\ \hline
+    28 & 6.329 & 288.448 & 26.707  & 289.860\\ \hline
+    32 & 12.119 & 368.319 & 44.965 & 370.579 \\ \hline
+    56 & 292.203 & 980.283 & 1221.654 & 1040.504 \\ \hline
+    64 & 577.162 & 16.049 & 28.597 & 20.147 \\
+    \hline
+    \end{tabular}
+    \caption{Single-fix rectification of integer multiplier against polynomial specification. Time in seconds; k = Datapath size, $t_1$ = verification time, $t_2$ = time to find potentially rectifiable nets , $t_3$ = time for rectification check, $t_4$ = time to compute rectification function. Time Out = 10800 seconds.}
+    \label{tb:tb1}
+\end{table}
+
+In the above table, $t_1$ is the time taken to perform verification of the buggy circuits using the reduction model described in \cite{Armin2017ColumnWiseVO}. Time $t_2$ indicates the time taken to find set of potentially rectifiable nets, $\mathcal{N} \subset \{x_1,\dots,x_n\}$. Time $t_3$ indicates the time taken apply the rectification check on nets in $\mathcal{N}$ until a net $x_i$ is found to admit single-fix rectification. The procedure to find potentially rectifiable nets $\mathcal{N}$ and the rectification target net $x_i$ is borrowed from \cite{utkarsh:fmcad18}. Time $t_4$ is the time taken to compute a rectification polynomial using our approach. 
+
+An interesting observation in Table \ref{tb:tb1} is the difference in computation time between the 56-bit multiplier and 64-bit multiplier. Single-fix rectification in the 56-bit multiplier is attempted at a net $x_i$ that is located deeper in the circuit, when compared to the placement of the rectification target in the 64-bit multiplier. This result shows that the efficiency of our approach depends on the location of the rectification target net.
+
+Once our approach computes a rectification polynomial, we can obtain an AND-XOR expression of the rectification function. When this function is implemented in the buggy circuit, it is desirable to compare the area and delay properties of the original circuit and the rectified circuit. We performed some experiments to obtain synthesis results for rectified circuits, compared to the original correct circuit. 
+
+The AIG files which were used to generate the SINGULAR files are given as input to ABC. The BLIF files are generated for these multipliers. The circuit is then mapped to a logic library,  \textit{``cadence.genlib1"}, consisting of INVERTER, BUFFER, AND, OR and XOR gates. The command \textit{``print\_stats"} was used to obtain area and delay properties of the circuits. 
+
+A bug $b_1$ was introduced in the circuit and single-fix rectification was attempted. We computed a rectification polynomial and obtained an AND-XOR expression for the rectification function. This rectification function was written in BLIF format and used to rectify the bug in the BLIF file. We then used the command $``resyn"$ in ABC to re-synthesize the circuit. This circuit was then mapped to the same logic library with INVERTER, BUFFER, AND, OR and XOR gates. The command \textit{``print\_stats"} was used to obtain area and delay properties of the rectified circuit. To find the dependency of synthesis results on location of the bug, the above experiment was repeated for other bugs $b_2$ and $b_3$. The bug $b_2$ is located deeper in the circuit compared to $b_1$, and bug $b_3$ is located deeper in the circuit compared to $b_2$. The synthesis results are presented in Table \ref{tb:synth}.
+
+  \begin{table*}
+{
+%    \centering
+%    \resizebox{\textwidth}{!}{
+    \begin{tabular}{| c | c | c | c | c | c | c | c | c | c |}
+    \hline
+    $k$ & \multicolumn{3}{c|}{16} & \multicolumn{3}{c|}{32} & \multicolumn{3}{c|}{56} \\ \hline
+        & $b_1$ & $b_2$ & $b_3$ & $b_1$ & $b_2$ & $b_3$ & $b_1$ & $b_2$ & $b_3$ \\ \hline 
+    $area_{(func)}$ & 3 & 9 & 1100 & 9 & 41 & 312 & 9 & 87 & TO \\ \hline
+   $delay_{(func)}$ & 2.00 & 4.00 & 22.00 & 4.00 & 8.00 & 17.00 & 4.00 & 11.00 & TO \\ \hline     
+    $area_{(rect)}$ & 1537 & 1486 & 2492 & 6032 & 6186 & 6469 & 18608 & 18938 & TO \\ \hline     
+    $delay_{(rect)}$ & 88.00 & 89.00 & 89.00 & 184.00 & 184.00 & 184.00 & 328.00 & 328.00 & TO \\ \hline  
+    $penalty_{(area)}$ & 9.16\% & 5.53\% & 76.98\% & 2.44\% & 5.06 & 9.86\% & 1.30\% & 3.1\% & TO \\ \hline
+    $area_{(orig)}$ & \multicolumn{3}{c|}{1408.00} & \multicolumn{3}{c|}{5888.00} & \multicolumn{3}{c|}{18368.00} \\ \hline 
+    
+    $delay_{(orig)}$ & \multicolumn{3}{c|}{88.00} & \multicolumn{3}{c|}{184.00} & \multicolumn{3}{c|}{328.00} \\ \hline
+    
+    \end{tabular}
+%}
+    \caption{Synthesis Results. $area$ in sq. units. $delay = $ No. of gates.}
+    \label{tb:synth}
+}
+\end{table*}
+
+
+$area_{(func)}$ and $delay_{(func)}$ are the area and delay numbers for the rectification function. $area_{(rect)}$ and $delay_{(rect)}$ are the area and delay numbers for the rectified circuit. $area_{(orig)}$ and $delay_{(orig)}$ are area and delay numbers for the original correct circuit. Note that in all cases, the rectified circuit has a larger area compared to the original correct circuit. For each bug, we have calculated the area penalty we pay for rectification by comparing the rectified circuit to the original correct circuit. For example, the rectification of a bug $b_1$ in the 16-bit multiplier results in a circuit with 9.1\% more area compared to the original circuit. Arithmetic circuits are custom designed. However, we are synthesizing a sub-function to implement in the multiplier circuit and synthesizing the whole circuit. Logic synthesis for arithmetic circuits is not very efficient and that is reflected in these results. 
+
+Consider the bug $b_3$ in the 56-bit array multiplier. The bug is placed in the middle of the circuit and the \Grobner Basis reduction for verification times out. Therefore, a feasible rectification polynomial was not computed to rectify this bug. By observing the results shown in Table \ref{tb:tb1} and Table \ref{tb:synth}, we can conclude that the location of the bug, and consequently the location of the rectification target, influences the efficiency of our approach. One of the limitations of our approach is that we witness the worst case of the complexity \Grobner Basis reduction in case of certain bugs, based on their location. 
+
+% Consider the bug $b_3$ in the 56-bit array multiplier. The bug is placed in the middle of the circuit and the \Grobner Basis reduction for verification times out. Therefore, a feasible rectification polynomial was not computed to rectify this bug. By observing the results shown in Table \ref{tb:tb1} and Table \ref{tb:synth}, we can conclude that the location of the bug, and consequently the location of the rectification target, influences the efficiency of our approach. To understand this dependency, we have conducted more experiments on a 16-bit integer multiplier by rectifying various bugs present at different locations in the circuit. 
+
+% We use the column-wise incremental reduction model from \cite{Armin2017ColumnWiseVO} to perform \Grobner Basis reduction in our procedure. This model first divides a $k$-bit integer multiplier into $2k$ slices column-wise.
+
+% Following this model, a $16$-bit integer can be divided into $32$ slices, $C_0$ to $C_{31}$. We introduced a bug in slice $C_2$ at a net located close to the primary output $s_2$. Net $x_i$ is selected so it is also located close to the primary output and admits single-fix rectification. We applied the rectification check, described in Theorem. \ref{thm:rectcheck}, on net $x_i$.  We recorded the time taken to complete the \Grobner Basis reductions required to perform the check. We repeated this procedure for bugs located in the middle of the column structure, as well as for bugs located close to the primary inputs. We repeated these experiments for bugs introduced in other columns, gradually moving towards $C_{31}$. The results of the experiments are shown in Table \ref{tb:t3}. 
+
+% \begin{table}[H]
+%     \centering
+%         \begin{tabular}{| c | c | c | c |}
+%     \hline
+%              & NO & NM & NI \\ \hline
+%     $C_{2}$  & 2.310 & 2.188 & 2.289 \\ \hline 
+%     $C_{4}$  & 3.197 & 2.673 & 2.286 \\ \hline 
+%     $C_{6}$  & 202.160 & 26.586 & 2.087 \\ \hline 
+%     $C_{10}$ & TO & TO & 2.162 \\ \hline 
+%     $C_{12}$ & TO & TO & 2.252 \\
+%     \hline
+%     \end{tabular}
+%     \caption{Time recorded in seconds. Time Out = 10800 seconds.NO = Near Output. NM = Near Middle. NI = Near Input.}
+%     \label{tb:t3}
+% \end{table}
+
+% The numbers recorded in Table \ref{tb:t3} are the computation time for for applying Theorem \ref{thm:rectcheck} on net $x_i$. The computation times for bugs placed near output (NO), near middle (NM), and near input (NI) are compared. We observe that the \Grobner Basis reductions for rectification check does not complete for bugs placed near the primary outputs in slice $C_{10}$. However, reduction does complete for circuits where the bug is placed close to the primary inputs. The results in Table \ref{tb:t3} indicates that the efficiency of our approach is dependent on the placement of the rectification target net. In cases where the bug is placed close to the primary output, we see the worst case of the complexity of the \Grobner Basis reduction, which is discussed further in the subsequent section. 
+

@@ -1,0 +1,37 @@
+\section{Experiments}
+\label{sec:exp}
+
+We have performed experiments on integer array multiplier circuits where the implementation is
+different from the specification due to the presence of a bug.
+We generated AIG files of array multipliers up to 64 bits by using the \textit{gen -m} command from ABC \cite{ABC}. The tool from the authors in \cite{Armin2017ColumnWiseVO} was used to input the AIG files and obtain *.SING files for the multiplier. We introduced bugs which could be corrected by a single-fix rectification. The complete single-fix rectification procedure is implemented using the SINGULAR symbolic
+algebra computation system [ver. 4-1-0][\cite{DGPS_410}]. The experiments
+were conducted on a desktop computer with a 3.5GHz Intel
+CoreTM i7-4770K Quad-core CPU, 16 GB RAM, running 64-
+bit Linux OS. 
+\vspace{0.1mm}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{| l | l | l | l | l |}
+    \hline
+    $k$ & $t_1$ & $t_2$ & $t_3$ & $t_4$ \\ \hline
+    2 & 0.002 & 0.003 & 0.007 & 0.005 \\ \hline
+    4 & 0.005 & 5.820 & 0.024 & 5.824 \\ \hline
+    8 & 0.027 & 9.103 & 0.206 & 9.111 \\ \hline
+    12 & 0.120 & 23.137 & 0.641 & 23.158 \\ \hline
+    16 & 0.400 & 42.915 & 1.782 & 42.981 \\ \hline
+    18 & 0.647 & 48.964 & 2.479 & 49.060  \\ \hline
+    28 & 6.329 & 288.448 & 26.707  & 289.860\\ \hline
+    32 & 12.119 & 368.319 & 44.965 & 370.579 \\ \hline
+    56 & 292.203 & 980.283 & 1221.654 & 1040.504 \\ \hline
+    64 & 577.162 & 16.049 & 28.597 & 20.147 \\
+    \hline
+    \end{tabular}
+    \caption{Single-fix rectification of integer multiplier against polynomial specification. Time in seconds; k = Datapath size, $t_1$ = verification time, $t_2$ = time to find potentially rectifiable nets , $t_3$ = time for rectification check, $t_4$ = time to compute rectification function. Time Out = 10800 seconds.}
+    \label{tb:tb1}
+\end{table}
+
+In the above table, $t_1$ is the time taken to perform verification of the buggy circuits using the reduction model described in \cite{Armin2017ColumnWiseVO}. 
+% Time $t_2$ indicates the application of Proposition. \ref{prop:targetnets} to find set of potentially rectifiable nets, $\mathcal{N} \subset \{x_1,\dots,x_n\}$. Time $t_3$ indicates the time taken to apply Theorem. \ref{ch:rectcheck} on the nets in the set $\mathcal{N}$ till a rectification target net $x_i \subset \mathcal{N}$ is found. 
+Time $t_4$ is the time taken to compute a rectification polynomial using our approach. 
+
+An interesting observation in Table \ref{tb:tb1} is the difference in computation time between the 56-bit multiplier and 64-bit multiplier. Single-fix rectification in the 56-bit multiplier is attempted at a net $x_i$ that is located deeper in the circuit, when compared to the placement of the rectification target in the 64-bit multiplier. This result shows that the efficiency of our approach depends on the location of the rectification target net.

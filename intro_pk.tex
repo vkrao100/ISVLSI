@@ -1,0 +1,143 @@
+\section{Introduction}
+
+Past few years have witnessed significant advances in automatic
+formal verification of arithmetic circuits. Given a polynomial
+specification (\spec $f$) and an implementation circuit $C$, 
+techniques have been researched that formally prove that $C$
+implements $f$, or ascertain the 
+presence of a bug in the design. These techniques use an {\it
+  algebraic (i.e. polynomial algebra) model} as a core computational
+engine for verification, and have demonstrated
+successful verification for integer arithmetic circuits
+\cite{kauffman2017} \cite{Armin2017ColumnWiseVO} \cite{PolyCleaner}
+\cite{maciej:2016:1} \cite{Cunxi:TCAD_2018_9}, integer modulo
+arithmetic circuits \cite{wienand:cav08}, and also for finite field
+circuits \cite{lv:tcad2013} \cite{pruss:tcad} -- all with large
+operand sizes.
+
+
+When formal verification of arithmetic circuits detects the presence
+of a bug in the design, then it is required to perform
+post-verification debugging and {\bf rectification} of the buggy
+implementation so that the rectified circuit matches the given
+specification. In such a setting, it is desirable to compute
+rectification functions at internal nets, without
+resynthesizing/redesigning the entire circuit -- i.e. the problem of {\it
+  partial synthesis}. The partial synthesis problem is more involved
+than that of verification, as the former is a quantification problem
+whereas the latter is a decision problem. Rectification 
+requires to first identify a set of nets where the circuit can be
+rectified, and then to subsequently compute corresponding
+rectification functions at those nets.  While this problem of has been
+addressed
+%(for debugging as well as for engineering change orders)
+for random-logic circuits \cite{Sadowska:DAC95} \cite{Huang:DAC2011}
+\cite{fujita:2015} \cite{scholl:2}, as well as recently for finite
+field circuits \cite{Utkarsh:vlsisoc18} \cite{utkarsh:fmcad18}, the
+problem has not been satisfactorily addressed for rectification of
+integer arithmetic circuits. This paper addresses the
+problem of {\it computing and synthesizing rectification functions for
+  buggy integer arithmetic circuits}. 
+
+{\it Problem Statement:} We are given an integer arithmetic circuit
+$C$ and a polynomial specification $f$. Formal verification is
+performed to verify $C$ against $f$ (say, using the techniques of
+\cite{Armin2017ColumnWiseVO}). We assume that verification determines
+that $C$ is buggy, i.e. $C$ {\underline{does not}} implement $f$. No
+assumptions are made about the type, nature or the number of bugs in
+$C$. Assume further that post-verification debugging has been
+performed and {\it it has been determined that $C$ can be rectified at
+  a single-net $x_i$}. In other words, we assume that $C$ admits {\it
+  single-fix rectification} at net $x_i$. Our {\it objective} is
+to compute and synthesize a Boolean function $U(X_{PI})$ in
+terms of primary input variables of the circuit ($X_{PI}$) such that
+modifying the circuit at $x_i = U(X_{PI})$ rectifies $C$ to match
+$f$. 
+
+\textit{Related Previous Work:} 
+Automated diagnosis and rectification of digital circuits
+was addressed in \cite{Madre:ICCAD89}, and the technique was extended
+in \cite{Sadowska:DAC95} for synthesizing Engineering Change Order
+(ECO) patches - an analogous problem to rectification. Once
+rectification is deemed feasible, the problem of finding the 
+rectification function has been considered as partial synthesis of an
+unknown component $U$. The approach \cite{fujita:2015} formulates the
+computation of $U$ as a quantified Boolean formula (QBF), and solves
+it using incremental and iterative SAT solving. Similarly, the authors
+in~\cite{scholl:2} present a QBF formulation for answering whether a
+partial implementation (with block-boxes $U$) can be extended to a
+complete design that models a given specification. As Craig
+interpolation is an alternative to QBF solving, it has been presented
+in \cite{Huang:DAC2011} for multi-fix rectification for ECO synthesis.  
+
+%% The rectification problem has been addressed for finite field
+%% arithmetic circuits in \cite{utkarsh:vlsisoc18} \cite{utkarsh:fmcad18}
+%% and \cite{utkarsh:ets19}. 
+The concept of Craig interpolation was extended to polynomials in
+finite fields \cite{Utkarsh:vlsisoc18} \cite{utkarsh:ets19} and
+application to rectification of finite field arithmetic circuits was
+demonstrated. As Craig interpolation in finite fields is a
+computationally hard problem, another rectification approach was
+presented for finite field circuits in \cite{utkarsh:fmcad18} which
+uses the (extended) \Grobner basis algorithm as a quantification
+procedure to compute the rectification function. Rectification has
+been attempted for integer arithmetic circuits \cite{farimah:2017:1}
+\cite{Rolf:ISVLSI2018}. Unfortunately, the technique of
+\cite{farimah:2017:1} was demonstrated to be incomplete in
+\cite{utkarsh:fmcad18}, and \cite{Rolf:ISVLSI2018} is limited by the
+fault model which only addresses the gate misplacement fault. 
+
+
+\textit{Approach and Contributions:} We model the rectification problem
+using concepts from algebraic geometry and use symbolic computer
+algebra algorithms to compute the rectification function
+$U(X_{PI})$. Using the model presented in
+\cite{Armin2017ColumnWiseVO}, we describe the gates of $C$ with
+a set of polynomials $F = \{f_1,\dots, f_s\}$ with integer
+coefficients. Subsequently, the problem of computing $U(X_{PI})$ is
+modeled as an extended ideal membership testing problem, which is
+solved using the \Grobner basis algorithm \cite{gb_book}. 
+
+Our work draws inspirations from \cite{kauffman2017}
+\cite{Armin2017ColumnWiseVO} and \cite{utkarsh:fmcad18}. In
+\cite{kauffman2017}\cite{Armin2017ColumnWiseVO}, the authors showed
+that the verification of integer multipliers could be formulated and
+solved over polynomial rings with coefficients from the field of
+fractions $\Q$, as opposed to solving over integers $\Z$. As most
+algebraic geometry results are valid over fields (and $\Z \subset
+\Q$ is not a field), their approach leveraged theory as well as
+efficient computational techniques over fields to solve the
+verification problem. Also, \cite{utkarsh:fmcad18} shows how to
+compute single-fix rectification functions $x_i = U(X_{PI})$ over
+finite field circuits. {\it We use the polynomial model of
+\cite{kauffman2017}   \cite{Armin2017ColumnWiseVO} to perform \Grobner
+basis computations over $\Q$, and use the ideal membership approach
+presented in Section VI in \cite{utkarsh:fmcad18} to compute the
+rectification function.} 
+
+
+Our approach assumes that it has been determined that the net $x_i$ in
+$C$ admits single-fix rectification. This implies the {\it existence of a
+Boolean function} $U: \{0,1\}^{|X_{PI}|}\rightarrow \{0,1\}$, such
+that $x_i = U(X_{PI})$ rectifies the circuit. However, since we use a
+polynomial model over $\Q$, application of the techniques of
+\cite{utkarsh:fmcad18} computes $U$ as a polynomial function over
+$\Q$, i.e. it may evaluate to non-Boolean values in $\Q$. Therefore,
+one of the main contribution of our approach is that it investigates
+the nature of the rectification polynomial, its relationship to don't
+care conditions, and shows how to synthesize a rectification
+polynomial $U$ for integer arithmetic circuits such that it maps as
+$\{0,1\}^{|X_{PI}|} \rightarrow \{0,1\}$. Experiments demonstrate the
+application of our approach to integer (array) multiplier circuits. 
+
+Finally, the problem of ascertaining single-fix rectifiability at net
+$x_i$ is not described in this paper (mostly due to lack of space). It
+can be solved in a manner similar to Theorem V.1 in
+\cite{utkarsh:fmcad18}. Similarly, multi-fix rectification is also
+beyond the scope of this paper. 
+
+{\it Paper Organization:} The paper is organized as follows: The
+following section covers preliminary concepts. Sec. \ref{verif} covers
+the verification setup, and Sec. \ref{rect} describes the rectification
+theory and approach. Experiments are described in Sec. \ref{sec:exp},
+and Sec. \ref{sec:conclude} concludes the paper. 
